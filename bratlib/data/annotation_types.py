@@ -11,12 +11,14 @@ class AnnData:
 
 @dataclass
 class Entity(AnnData):
+    entity_id: str
     tag: str
     spans: t.List[t.Tuple[int, int]]
     mention: str = field(compare=False)
 
     @classmethod
     def _from_re(cls, match: t.Match):
+        entity_id = match[1]
         tag = match[2]
 
         # Create list of tuples for every pair of spans
@@ -26,7 +28,7 @@ class Entity(AnnData):
 
         mention = match[4]
 
-        return cls(tag, spans, mention)
+        return cls(entity_id, tag, spans, mention)
 
     @_utils.return_not_implemented
     def __lt__(self, other):
@@ -38,6 +40,12 @@ class Entity(AnnData):
     @_utils.return_not_implemented
     def __eq__(self, other):
         return (self.tag, self.spans, self.mention) == (other.tag, other.spans, other.mention)
+
+    def min_start(self):
+        return self.spans[0][0]
+
+    def max_end(self):
+        return self.spans[-1][1]
 
 
 @dataclass
@@ -56,6 +64,7 @@ class Event(AnnData):
 
 @dataclass(eq=True)
 class Relation(AnnData):
+    relation_id: str
     relation: str
     arg1: Entity
     arg2: Entity

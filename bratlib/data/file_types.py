@@ -99,7 +99,7 @@ class BratFile:
 
     @cached_property
     def _data_dict(self) -> t.Dict[str, t.List[AnnData]]:
-        text = self.ann_path.read_text()
+        text = self.ann_path.read_text(encoding='utf-8')
         data_dict = {}
 
         # Entities
@@ -126,10 +126,11 @@ class BratFile:
         rels = []
 
         for match in _patterns.rel_pattern.finditer(text):
-            tag = match[1]
-            arg1 = self._lookup_from_mapping(match[2])
-            arg2 = self._lookup_from_mapping(match[3])
-            new_rel = Relation(tag, arg1, arg2)
+            relation_id = match[1]
+            tag = match[2]
+            arg1 = self._lookup_from_mapping(match[3])
+            arg2 = self._lookup_from_mapping(match[4])
+            new_rel = Relation(relation_id, tag, arg1, arg2)
             rels.append(new_rel)
         data_dict['relations'] = sorted(rels)
 
